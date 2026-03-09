@@ -10,7 +10,11 @@ Let Claude Desktop search, read, upload, download, and share files in your Googl
 
 ### For users
 
-The easiest way to set up this server is to **let Claude do it for you.** Copy and paste this into Claude Desktop:
+The easiest way to set up this server is to **let Claude do it for you:**
+
+1. **Start a session in a folder** — In Claude Desktop, click the **folder icon** (bottom-left of the chat input) and select any folder on your computer (e.g., your home folder or Desktop). Claude needs this to run commands on your machine.
+
+2. **Paste this into the chat:**
 
 ```
 Download https://github.com/xorbh/gdrive-mcp/archive/refs/heads/master.zip into ~/mcp-servers/, unzip it, then read the CLAUDE.md file inside and follow its instructions to guide me through setup step by step.

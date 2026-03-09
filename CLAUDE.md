@@ -14,6 +14,18 @@ You are helping a user set up the Google Drive MCP server so Claude Desktop can 
 
 ## Before you start
 
+### Check that the user has a folder session
+
+Before doing anything, verify you can run shell commands by running a simple command like `pwd`. If you cannot run commands or the user doesn't seem to be in a folder session, tell them:
+
+> "Before we start, I need you to open a folder session so I can run commands on your machine. Here's how:"
+>
+> 1. "Look at the bottom-left of the chat input box — you should see a **folder icon**"
+> 2. "Click it and select any folder on your computer (your home folder or Desktop works fine)"
+> 3. "Once you've done that, send me a message and we'll continue"
+
+Wait for them to confirm before proceeding.
+
 ### If the project is NOT yet downloaded:
 
 If the user has given you a GitHub URL or asked you to set up the Google Drive MCP server but the project isn't on their machine yet, download and extract it first:
