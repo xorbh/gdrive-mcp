@@ -10,13 +10,13 @@ Let Claude Desktop search, read, upload, download, and share files in your Googl
 
 ### For users
 
-The easiest way to set up this server is to **let Claude do it for you:**
+The easiest way to set up this server is to **let Claude do it for you.** Copy and paste this into Claude Desktop:
 
-1. Download and unzip this project
-2. Drop your `credentials.json` file into the folder (see below for how to get one)
-3. Open this folder as a project in Claude Desktop
-4. Tell Claude: **"Help me set this up"**
-5. Claude will walk you through every step
+```
+Download https://github.com/xorbh/gdrive-mcp/archive/refs/heads/master.zip into ~/mcp-servers/, unzip it, then read the CLAUDE.md file inside and follow its instructions to guide me through setup step by step.
+```
+
+That's it — Claude will download everything, then walk you through each step.
 
 ### Getting credentials.json
 
