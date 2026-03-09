@@ -4,6 +4,7 @@ import { URL } from "url";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { exec } from "child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -58,9 +59,16 @@ async function authenticate() {
     prompt: "consent",
   });
 
-  console.log("\nOpen this URL in your browser to authorize:\n");
+  console.log("\nOpening your browser for authorization...\n");
+  console.log("If the browser doesn't open automatically, copy and paste this URL:\n");
   console.log(authUrl);
   console.log("\nWaiting for authorization...\n");
+
+  // Auto-open the browser
+  const openCmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
+  exec(`${openCmd} "${authUrl}"`);
+
+  const AUTH_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
   const code = await new Promise<string>((resolve, reject) => {
     const server = http.createServer((req, res) => {
@@ -71,6 +79,7 @@ async function authenticate() {
         res.end(
           "<h1>Authorization successful!</h1><p>You can close this tab.</p>"
         );
+        clearTimeout(timeout);
         server.close();
         resolve(code);
       } else {
@@ -82,6 +91,11 @@ async function authenticate() {
       console.log("Listening on http://localhost:3848 for OAuth callback...");
     });
     server.on("error", reject);
+
+    const timeout = setTimeout(() => {
+      server.close();
+      reject(new Error("Authorization timed out after 5 minutes. Please run setup again."));
+    }, AUTH_TIMEOUT_MS);
   });
 
   const { tokens } = await oauth2Client.getToken(code);
