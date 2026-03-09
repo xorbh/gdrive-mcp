@@ -243,36 +243,46 @@ Show the error and help them fix it. Most common cause is a TypeScript version i
 
 ## Step 5: Google Authorization
 
-**Before running the command**, tell the user all of this:
+**Do NOT try to run the auth command yourself.** The auth process needs to listen on localhost for Google's callback, which doesn't work from within Claude Desktop's sandbox. The user must run this command in their own Terminal.
 
-> "OK, this next step will connect to your Google account. Here's what's going to happen:"
->
-> 1. "I'll run a command that starts a sign-in process"
-> 2. "Your web browser should open automatically with a Google sign-in page"
-> 3. "If the browser doesn't open on its own, I'll show you a link to copy and paste"
-> 4. "Sign in with the same Google account you used to set up the Cloud project"
-> 5. "You might see a scary-looking warning that says **'Google hasn't verified this app'** — this is totally normal! You made this app yourself, so Google just hasn't reviewed it. Click **Advanced**, then click **Go to MCP Server (unsafe)** — it's completely safe."
-> 6. "Click **Allow** to give the server access to your Drive"
-> 7. "You should see a page that says **'Authorization successful!'** — then come back here and let me know"
->
-> "Ready? Let me start it now."
+Tell the user:
 
-Then run:
+> "This next step connects to your Google account. I can't run this one for you because it needs to listen for Google's response on your computer. But don't worry — it's just one command!"
+>
+> "Open **Terminal** on your Mac (you can find it in Applications → Utilities, or just search for 'Terminal' in Spotlight with Cmd+Space)."
+>
+> "Then paste this command:"
+
+Give them the exact command with the **absolute path** to the project folder (use the path you determined earlier, e.g. `~/mcp-servers/gdrive-mcp`):
+
 ```
-npm run auth -- --config-dir config/default
+cd ABSOLUTE_PATH && npm run auth -- --config-dir config/default
 ```
 
-### If it succeeds (prints "Token saved"):
-Tell the user: "Excellent! Your Google account is connected. Almost done!"
+Then tell them:
 
-### If it times out:
-Tell the user the auth timed out and offer to try again. Ask if the browser opened, if they were able to sign in, etc.
+> "After you paste that and press Enter:"
+>
+> 1. "Your browser should open with a Google sign-in page"
+> 2. "If it doesn't open automatically, a URL will appear in Terminal — copy and paste it into your browser"
+> 3. "Sign in with the same Google account you used to set up the Cloud project"
+> 4. "You might see a warning that says **'Google hasn't verified this app'** — this is totally normal! You made this app yourself. Click **Advanced**, then click **Go to MCP Server (unsafe)** — it's completely safe."
+> 5. "Click **Allow**"
+> 6. "You should see **'Authorization successful!'** in your browser"
+> 7. "Come back here and let me know when it's done!"
 
-### If port is already in use:
-Another process is using port 3848. Ask them to close other terminal windows or tabs that might be running this server, then try again.
+### After they confirm it worked:
+Verify the token file exists:
+```
+ls ABSOLUTE_PATH/config/default/token.json
+```
+If it exists, tell them: "Excellent! Your Google account is connected. Almost done!"
 
-### If they get a "redirect_uri_mismatch" error:
-Their OAuth client might be set to "Web application" instead of "Desktop app". Guide them back to Google Cloud Console → Credentials → delete the existing OAuth client → create a new one as **Desktop app**.
+### If they say it failed:
+- **"command not found: node"** — They need to close and reopen Terminal after installing Node.js, or their PATH isn't set up. See Step 1 troubleshooting.
+- **"redirect_uri_mismatch"** — Their OAuth client was created as "Web application" instead of "Desktop app". Guide them back to Google Cloud Console → Credentials → delete it → create a new one as **Desktop app**.
+- **Port already in use** — Another process is using port 3848. Ask them to close other Terminal windows that might be running this, then try again.
+- **Browser didn't open** — Tell them to look for the URL printed in Terminal and copy-paste it into their browser manually.
 
 ---
 
@@ -397,15 +407,22 @@ Explain: "I'm creating a separate config for your [PROFILE_NAME] account. The Go
 
 #### Step B: Run authorization
 
-**Before running**, tell the user:
-> "I'm about to open Google sign-in again. **This time, make sure you sign in with your [PROFILE_NAME] Google account** (e.g., your work email), NOT the account you used before."
->
-> "If you're already signed into Google in your browser, it might automatically pick the wrong account. If that happens, look for a 'Use another account' option on the Google sign-in page."
+**Do NOT run this yourself — the user must run it in Terminal (same reason as Step 5).**
 
-Then give them the same full auth instructions from Step 5 (browser opening, "Google hasn't verified this app" warning, clicking Allow, etc.) and run:
+Tell the user:
+> "Open Terminal again and paste this command:"
+
+Give them the exact command:
 ```
-npm run auth -- --config-dir config/PROFILE_NAME
+cd ABSOLUTE_PATH && npm run auth -- --config-dir config/PROFILE_NAME
 ```
+
+Then tell them:
+> "**Important: This time, make sure you sign in with your [PROFILE_NAME] Google account** (e.g., your work email), NOT the one you used before."
+>
+> "If you're already signed into Google in your browser, it might automatically pick the wrong account. Look for a **'Use another account'** option on the Google sign-in page."
+
+Give them the same browser instructions as Step 5 (Google sign-in, "hasn't verified this app" warning, click Allow, etc.).
 
 #### Step C: Verify the token was saved
 Check that `config/PROFILE_NAME/token.json` exists. If it does, tell the user:
