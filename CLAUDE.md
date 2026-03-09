@@ -312,59 +312,126 @@ If they DON'T see it:
 
 ---
 
-## Adding Another Google Account (Multiple Profiles)
+## Step 8: Ask about multiple Google accounts
 
-If the user asks to connect a second Google account (e.g., a work account in addition to a personal account), guide them through this:
+**This step is NOT optional — always ask this after Step 7 succeeds.**
 
-Tell the user: "You can connect multiple Google accounts! Each one gets its own profile. Let me set one up for you."
+After the first account is working, ask the user:
 
-1. **Ask them what to name this profile** — e.g., "work", "personal", "school", etc. Use this as PROFILE_NAME below.
+> "Great, your Google Drive is connected! One more thing — do you have any other Google accounts you'd like to connect? For example, a work account, a school account, or another personal account? Each one would show up as a separate set of tools so you can say things like 'search my work Drive' or 'check my personal Drive.'"
 
-2. Create the new config directory and copy credentials:
+- If they say **no**, you're done! Congratulate them and wrap up.
+- If they say **yes**, proceed to the multi-account flow below.
+
+---
+
+## Multi-Account Flow
+
+### Planning phase
+
+Before adding any accounts, figure out the full picture:
+
+1. **Ask how many additional accounts** they want to connect and what they'd like to call each one. For example:
+   - "work" (for a company Google Workspace account)
+   - "personal" (if the default was their work account)
+   - "school" (for a .edu account)
+   - Any name they want — it's just a label
+
+2. **Check what profiles already exist** by listing the `config/` directory:
+   ```
+   ls config/
+   ```
+   This tells you which profiles are already set up so you don't create duplicates.
+
+3. **Rename the default profile if needed.** If the user says something like "my first account was personal, now I want to add work", consider suggesting:
+   > "Right now your first account is called 'gdrive' in Claude Desktop. Would you like me to rename it to 'gdrive-personal' so it's clearer which is which?"
+
+   If yes, you'll update the Claude Desktop config entry name (and `--name` flag) for the default profile too.
+
+4. **Make a plan and share it with the user.** For example:
+   > "OK, here's my plan: I'll set up 2 additional profiles — 'work' and 'school'. For each one, I'll run the Google sign-in process (you'll need to sign in with that account), and then I'll update the Claude Desktop config with all three accounts at the end. Sound good?"
+
+   Wait for confirmation before proceeding.
+
+### For each additional account, repeat this loop:
+
+Tell the user which account you're setting up now:
+> "Let's set up your [PROFILE_NAME] account. This will be quick — we just need to sign in with that Google account."
+
+#### Step A: Create the profile directory
 ```
 mkdir -p config/PROFILE_NAME
 cp config/default/credentials.json config/PROFILE_NAME/credentials.json
 ```
 
-Note: They can reuse the same `credentials.json` file. The OAuth client works for any Google account — it's the sign-in step that determines which account is used.
+Explain: "I'm creating a separate config for your [PROFILE_NAME] account. The Google credentials file works for any account — it's the sign-in step that determines which account gets connected."
 
-3. Run the auth flow for the new profile:
+#### Step B: Run authorization
+
+**Before running**, tell the user:
+> "I'm about to open Google sign-in again. **This time, make sure you sign in with your [PROFILE_NAME] Google account** (e.g., your work email), NOT the account you used before."
+>
+> "If you're already signed into Google in your browser, it might automatically pick the wrong account. If that happens, look for a 'Use another account' option on the Google sign-in page."
+
+Then give them the same full auth instructions from Step 5 (browser opening, "Google hasn't verified this app" warning, clicking Allow, etc.) and run:
 ```
 npm run auth -- --config-dir config/PROFILE_NAME
 ```
 
-Give them the same browser instructions as Step 5, but emphasize: **"Make sure you sign in with your OTHER Google account this time (e.g., your work account), not the one you used before."**
+#### Step C: Verify the token was saved
+Check that `config/PROFILE_NAME/token.json` exists. If it does, tell the user:
+> "Your [PROFILE_NAME] account is connected!"
 
-4. After auth succeeds, update the Claude Desktop config. Read the existing config file and add a new entry:
+#### Step D: Ask if there are more
+> "Want to add another account, or is that all?"
 
-```json
-"gdrive-PROFILE_NAME": {
-  "command": "node",
-  "args": ["ABSOLUTE_PATH/dist/index.js", "--config-dir", "ABSOLUTE_PATH/config/PROFILE_NAME", "--name", "gdrive-PROFILE_NAME"]
-}
-```
+If more, loop back to Step A with the next profile name. If done, proceed to the config step.
 
-The `--name` flag makes it show up with a distinct name so the user (and Claude) can tell the accounts apart.
+### After all accounts are set up: Update Claude Desktop config
 
-5. Show them what the full merged config should look like. For example:
-```json
-{
-  "mcpServers": {
-    "gdrive": {
-      "command": "node",
-      "args": ["ABSOLUTE_PATH/dist/index.js", "--config-dir", "ABSOLUTE_PATH/config/default"]
-    },
-    "gdrive-work": {
-      "command": "node",
-      "args": ["ABSOLUTE_PATH/dist/index.js", "--config-dir", "ABSOLUTE_PATH/config/work", "--name", "gdrive-work"]
-    }
-  }
-}
-```
+This is the most important part — do this ONCE at the end, after all accounts are authorized.
 
-6. Quit and reopen Claude Desktop.
+1. Get the absolute path with `pwd`.
+2. Read the current Claude Desktop config file:
+   - **Mac:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
-7. Tell them they should now see tools from both accounts. They can ask Claude things like "Search my work Drive for the Q4 report" and specify which account to use.
+3. Build the complete config with ALL profiles. List the `config/` directory to find every profile that has a `token.json`:
+   ```
+   ls config/*/token.json
+   ```
+
+4. Construct the full `mcpServers` config. The naming convention is:
+   - The `default` profile uses the server name `"gdrive"`
+   - All other profiles use `"gdrive-PROFILE_NAME"`
+   - Non-default profiles get the `--name` flag so Claude can tell them apart
+
+   Example with 3 accounts:
+   ```json
+   {
+     "mcpServers": {
+       "gdrive": {
+         "command": "node",
+         "args": ["ABSOLUTE_PATH/dist/index.js", "--config-dir", "ABSOLUTE_PATH/config/default"]
+       },
+       "gdrive-work": {
+         "command": "node",
+         "args": ["ABSOLUTE_PATH/dist/index.js", "--config-dir", "ABSOLUTE_PATH/config/work", "--name", "gdrive-work"]
+       },
+       "gdrive-school": {
+         "command": "node",
+         "args": ["ABSOLUTE_PATH/dist/index.js", "--config-dir", "ABSOLUTE_PATH/config/school", "--name", "gdrive-school"]
+       }
+     }
+   }
+   ```
+
+5. **Merge carefully** with any existing config. If they already have other MCP servers (like gmail), keep those entries and add/update only the gdrive entries. Show the user the complete final config so they can verify it looks right.
+
+6. Tell the user to save the config, then **quit Claude Desktop completely** (Cmd+Q on Mac) and reopen it.
+
+7. After they reopen, tell them:
+   > "You should now see tools from all your connected accounts! You can tell Claude which account to use by saying things like 'search my work Drive for the Q4 report' or 'upload this to my personal Drive.'"
 
 ---
 
