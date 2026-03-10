@@ -17,7 +17,7 @@ The easiest way to set up this server is to **let Claude do it for you:**
 2. **Paste this into the chat:**
 
 ```
-Set up a Google Drive MCP server for me. Download it from https://github.com/xorbh/gdrive-mcp/archive/refs/heads/master.zip, unzip it into this folder, then read the CLAUDE.md file inside and follow its instructions to guide me through setup step by step.
+Set up a Google Drive MCP server for me. First, check that I'm working in a folder session — run `pwd` and make sure it's a real user folder (not a sandbox like /private/var/folders/). If I'm not in a folder session, help me fix that before doing anything else. Then download it from https://github.com/xorbh/gdrive-mcp/archive/refs/heads/master.zip, unzip it into this folder, then read the CLAUDE.md file inside and follow its instructions to guide me through setup step by step.
 ```
 
 That's it — Claude will download everything into your selected folder, then walk you through each step.
