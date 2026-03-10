@@ -68,17 +68,22 @@ Wait for their answer. Use their chosen name as **CONNECTION_NAME** throughout t
 
 ### Download the project into the user's folder
 
-Once you've confirmed you're in the user's real folder and have the connection name, download and extract the project here:
+Once you've confirmed you're in the user's real folder and have the connection name, download and extract the project into the current directory:
 
 ```
-mkdir -p gdrive-mcp && curl -L https://github.com/xorbh/gdrive-mcp/archive/refs/heads/master.zip -o gdrive-mcp.zip && unzip gdrive-mcp.zip && mv gdrive-mcp-master/* gdrive-mcp/ && rm -rf gdrive-mcp-master gdrive-mcp.zip
+curl -L https://github.com/xorbh/gdrive-mcp/archive/refs/heads/master.zip -o gdrive-mcp.zip && unzip gdrive-mcp.zip && mv gdrive-mcp-master gdrive-mcp && rm gdrive-mcp.zip
 ```
 
-Run `pwd` inside the `gdrive-mcp` folder to get the **absolute path**. This is the PROJECT_PATH you will use for all subsequent commands and for the Claude Desktop config. Save it — you'll need it in Step 5 and Step 6.
+Then get the absolute path — this is your **PROJECT_PATH** for the rest of the setup:
+```
+cd gdrive-mcp && pwd
+```
+
+Save this path. You'll use it in every subsequent command, in Step 5 (auth), and in Step 6 (Claude Desktop config).
 
 Then create the config directory for this connection:
 ```
-cd PROJECT_PATH && mkdir -p config/CONNECTION_NAME
+mkdir -p config/CONNECTION_NAME
 ```
 
 ### If the project IS already downloaded:

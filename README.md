@@ -12,15 +12,15 @@ Let Claude Desktop search, read, upload, download, and share files in your Googl
 
 The easiest way to set up this server is to **let Claude do it for you:**
 
-1. **Start a session in a folder** — In Claude Desktop, click the **folder icon** (bottom-left of the chat input) and select any folder on your computer (e.g., your home folder or Desktop). Claude needs this to run commands on your machine.
+1. **Start a session in a folder** — In Claude Desktop, click the **folder icon** (bottom-left of the chat input) and select a folder where you'd like the project to live (e.g., Documents, Desktop, or your home folder). Claude needs this to run commands on your machine and to save files where you can find them.
 
 2. **Paste this into the chat:**
 
 ```
-Download https://github.com/xorbh/gdrive-mcp/archive/refs/heads/master.zip into ~/mcp-servers/, unzip it, then read the CLAUDE.md file inside and follow its instructions to guide me through setup step by step.
+Set up a Google Drive MCP server for me. Download it from https://github.com/xorbh/gdrive-mcp/archive/refs/heads/master.zip, unzip it into this folder, then read the CLAUDE.md file inside and follow its instructions to guide me through setup step by step.
 ```
 
-That's it — Claude will download everything, then walk you through each step.
+That's it — Claude will download everything into your selected folder, then walk you through each step.
 
 ### Getting credentials.json
 
