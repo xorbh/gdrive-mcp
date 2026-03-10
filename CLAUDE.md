@@ -10,35 +10,39 @@ You are helping a user set up the Google Drive MCP server so Claude Desktop can 
 - If something fails, help them troubleshoot — don't just say "it failed."
 - When you run commands, explain what you're doing in plain English first.
 - Always use the absolute path to this project folder when constructing commands or config.
+- **CRITICAL: You may be running inside a sandbox.** Files you create in the sandbox are NOT visible on the user's actual Mac. You MUST work inside the user's selected folder — never download or build anything outside of it. All files (the project, node_modules, dist, config) must live in the user's real filesystem.
 - **IMPORTANT: All commands must be run inside the project folder.** Before running ANY command, always `cd` into the project directory first. Every shell command block should start with `cd /path/to/gdrive-mcp && ...`. Never assume the shell is already in the right directory.
 
 ## Before you start
 
-### Check that the user has a folder session
+### Step 0: Determine your working directory
 
-Before doing anything, verify you can run shell commands by running a simple command like `pwd`. If you cannot run commands or the user doesn't seem to be in a folder session, tell them:
+**This is the most important step.** Run `pwd` to find out where you are.
 
-> "Before we start, I need you to open a folder session so I can run commands on your machine. Here's how:"
+- If you are in a user-selected folder (e.g., `/Users/username/Documents`, `/Users/username/Desktop`, or similar), you are in the right place. The project will be downloaded into this folder.
+- If you are in a sandbox path (e.g., `/private/var/folders/...`, `/tmp/...`, or anything that doesn't look like a normal user folder), **STOP**. Tell the user:
+
+> "I'm currently running in a temporary sandbox, which means any files I create here won't be visible on your Mac. We need to fix this first."
 >
 > 1. "Look at the bottom-left of the chat input box — you should see a **folder icon**"
-> 2. "Click it and select any folder on your computer (your home folder or Desktop works fine)"
+> 2. "Click it and select a folder on your computer where you'd like the project to live (e.g., your home folder, Documents, or Desktop)"
 > 3. "Once you've done that, send me a message and we'll continue"
 
-Wait for them to confirm before proceeding.
+Wait for them to confirm, then re-run `pwd` to verify you're now in their selected folder.
 
-### If the project is NOT yet downloaded:
+### Download the project into the user's folder
 
-If the user has given you a GitHub URL or asked you to set up the Google Drive MCP server but the project isn't on their machine yet, download and extract it first:
+Once you've confirmed you're in the user's real folder, download and extract the project here:
 
 ```
-mkdir -p ~/mcp-servers && cd ~/mcp-servers && curl -L https://github.com/xorbh/gdrive-mcp/archive/refs/heads/master.zip -o gdrive-mcp.zip && unzip gdrive-mcp.zip && mv gdrive-mcp-master gdrive-mcp && rm gdrive-mcp.zip
+mkdir -p gdrive-mcp && curl -L https://github.com/xorbh/gdrive-mcp/archive/refs/heads/master.zip -o gdrive-mcp.zip && unzip gdrive-mcp.zip && mv gdrive-mcp-master/* gdrive-mcp/ && rm -rf gdrive-mcp-master gdrive-mcp.zip
 ```
 
-The project folder is now `~/mcp-servers/gdrive-mcp`. Use this as the absolute project path for all subsequent commands.
+Run `pwd` inside the `gdrive-mcp` folder to get the **absolute path**. This is the PROJECT_PATH you will use for all subsequent commands and for the Claude Desktop config. Save it — you'll need it in Step 5 and Step 6.
 
 ### If the project IS already downloaded:
 
-Determine the absolute path of the project folder (look for where `CLAUDE.md`, `package.json`, and `src/` exist). Use this path for all subsequent commands.
+If the project folder already exists in the user's directory, determine its absolute path and use it for all subsequent commands.
 
 ### Then start the guided setup:
 
