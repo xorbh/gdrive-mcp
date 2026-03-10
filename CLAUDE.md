@@ -30,9 +30,27 @@ You are helping a user set up the Google Drive MCP server so Claude Desktop can 
 
 Wait for them to confirm, then re-run `pwd` to verify you're now in their selected folder.
 
+### Step 0b: Ask for a connection name
+
+Before downloading anything, ask the user what to call this connection:
+
+> "This will let Claude Desktop search, read, upload, download, and share files in your Google Drive. Before we start — what would you like to name this connection? For example:"
+>
+> - **"personal"** — for your personal Google Drive
+> - **"work"** — for your work/company Drive
+> - Or any name that makes sense to you
+>
+> "This name will help you tell your accounts apart if you connect more than one later."
+
+Wait for their answer. Use their chosen name as **CONNECTION_NAME** throughout the rest of the setup. This name will be used for:
+- The config directory: `config/CONNECTION_NAME/`
+- The Claude Desktop config entry: `"CONNECTION_NAME-gdrive"`
+- The `--name` flag: `--name CONNECTION_NAME-gdrive`
+- The auth command the user runs in Terminal
+
 ### Download the project into the user's folder
 
-Once you've confirmed you're in the user's real folder, download and extract the project here:
+Once you've confirmed you're in the user's real folder and have the connection name, download and extract the project here:
 
 ```
 mkdir -p gdrive-mcp && curl -L https://github.com/xorbh/gdrive-mcp/archive/refs/heads/master.zip -o gdrive-mcp.zip && unzip gdrive-mcp.zip && mv gdrive-mcp-master/* gdrive-mcp/ && rm -rf gdrive-mcp-master gdrive-mcp.zip
@@ -40,19 +58,18 @@ mkdir -p gdrive-mcp && curl -L https://github.com/xorbh/gdrive-mcp/archive/refs/
 
 Run `pwd` inside the `gdrive-mcp` folder to get the **absolute path**. This is the PROJECT_PATH you will use for all subsequent commands and for the Claude Desktop config. Save it — you'll need it in Step 5 and Step 6.
 
+Then create the config directory for this connection:
+```
+cd PROJECT_PATH && mkdir -p config/CONNECTION_NAME
+```
+
 ### If the project IS already downloaded:
 
-If the project folder already exists in the user's directory, determine its absolute path and use it for all subsequent commands.
+If the project folder already exists in the user's directory, determine its absolute path and use it for all subsequent commands. Still ask for the connection name and create the config directory.
 
 ### Then start the guided setup:
 
-Explain what this project does in one sentence:
-
-> "This will let Claude Desktop search, read, upload, download, and share files in your Google Drive."
-
-Then say:
-
-> "I'll walk you through the setup step by step. It should take about 15 minutes. Let's start!"
+> "Great! I'll set up your **CONNECTION_NAME** Google Drive connection step by step. It should take about 15 minutes. Let's start!"
 
 Then begin with Step 1.
 
@@ -118,17 +135,17 @@ Or if they use a different distro, point them to https://nodejs.org/en/download/
 ## Step 2: Check for credentials.json
 
 Check if the file exists in these locations (in order):
-1. `config/default/credentials.json` (relative to this project folder)
+1. `config/CONNECTION_NAME/credentials.json` (relative to this project folder)
 2. `credentials.json` in the project root folder
 
-### If found in project root but NOT in config/default:
+### If found in project root but NOT in config/CONNECTION_NAME:
 ```
-mkdir -p config/default
-cp credentials.json config/default/credentials.json
+mkdir -p config/CONNECTION_NAME
+cp credentials.json config/CONNECTION_NAME/credentials.json
 ```
 Tell the user: "Found your credentials file — I've put it in the right place."
 
-### If found in config/default:
+### If found in config/CONNECTION_NAME:
 Tell the user: "Your credentials file is already in place. Let's move on."
 
 ### If NOT found anywhere:
@@ -198,8 +215,8 @@ Ask: "Let me know when you've dropped the credentials.json file into the folder,
 
 Then re-check for the file. If found, move it into place:
 ```
-mkdir -p config/default
-cp credentials.json config/default/credentials.json
+mkdir -p config/CONNECTION_NAME
+cp credentials.json config/CONNECTION_NAME/credentials.json
 ```
 
 ---
@@ -260,7 +277,7 @@ Tell the user:
 Give them the exact command with the **absolute path** to the project folder (use the path you determined earlier, e.g. `~/mcp-servers/gdrive-mcp`):
 
 ```
-cd ABSOLUTE_PATH && npm run auth -- --config-dir config/default
+cd ABSOLUTE_PATH && npm run auth -- --config-dir config/CONNECTION_NAME
 ```
 
 Then tell them:
@@ -278,7 +295,7 @@ Then tell them:
 ### After they confirm it worked:
 Verify the token file exists:
 ```
-ls ABSOLUTE_PATH/config/default/token.json
+ls ABSOLUTE_PATH/config/CONNECTION_NAME/token.json
 ```
 If it exists, tell them: "Excellent! Your Google account is connected. Almost done!"
 
@@ -315,17 +332,29 @@ Tell them to replace everything with:
 ```json
 {
   "mcpServers": {
-    "gdrive": {
+    "CONNECTION_NAME-gdrive": {
       "command": "node",
-      "args": ["ABSOLUTE_PATH/dist/index.js", "--config-dir", "ABSOLUTE_PATH/config/default"]
+      "args": ["ABSOLUTE_PATH/dist/index.js", "--config-dir", "ABSOLUTE_PATH/config/CONNECTION_NAME", "--name", "CONNECTION_NAME-gdrive"]
     }
   }
 }
 ```
-(Replace ABSOLUTE_PATH with the actual path from `pwd`)
+Replace `ABSOLUTE_PATH` with the actual project path and `CONNECTION_NAME` with the name they chose (e.g., `personal`, `work`).
+
+For example, if they chose "work" and the project is at `/Users/joe/google-mcps/gdrive-mcp`:
+```json
+{
+  "mcpServers": {
+    "work-gdrive": {
+      "command": "node",
+      "args": ["/Users/joe/google-mcps/gdrive-mcp/dist/index.js", "--config-dir", "/Users/joe/google-mcps/gdrive-mcp/config/work", "--name", "work-gdrive"]
+    }
+  }
+}
+```
 
 ### If they already have other MCP servers:
-Tell them to add the gdrive entry inside their existing `"mcpServers"` block, separated by a comma. Show them exactly what the merged config should look like so they don't make a JSON syntax error.
+Tell them to add the `CONNECTION_NAME-gdrive` entry inside their existing `"mcpServers"` block, separated by a comma. Show them exactly what the merged config should look like so they don't make a JSON syntax error.
 
 After they've saved the file:
 
@@ -404,7 +433,7 @@ Tell the user which account you're setting up now:
 #### Step A: Create the profile directory
 ```
 mkdir -p config/PROFILE_NAME
-cp config/default/credentials.json config/PROFILE_NAME/credentials.json
+cp config/CONNECTION_NAME/credentials.json config/PROFILE_NAME/credentials.json
 ```
 
 Explain: "I'm creating a separate config for your [PROFILE_NAME] account. The Google credentials file works for any account — it's the sign-in step that determines which account gets connected."
@@ -462,7 +491,7 @@ This is the most important part — do this ONCE at the end, after all accounts 
      "mcpServers": {
        "gdrive": {
          "command": "node",
-         "args": ["ABSOLUTE_PATH/dist/index.js", "--config-dir", "ABSOLUTE_PATH/config/default"]
+         "args": ["ABSOLUTE_PATH/dist/index.js", "--config-dir", "ABSOLUTE_PATH/config/CONNECTION_NAME"]
        },
        "gdrive-work": {
          "command": "node",
@@ -494,7 +523,7 @@ If the user runs into problems at any point, here are common fixes:
 - Verify Claude Desktop was fully quit and reopened (Cmd+Q, not just closing the window)
 - Check that the file paths in the config are correct and the files exist
 - Check for JSON syntax errors in the config file (missing commas, extra commas, unclosed braces)
-- Run `node ABSOLUTE_PATH/dist/index.js --config-dir ABSOLUTE_PATH/config/default` directly to see if there's an error
+- Run `node ABSOLUTE_PATH/dist/index.js --config-dir ABSOLUTE_PATH/config/CONNECTION_NAME` directly to see if there's an error
 
 ### "Missing credentials.json" or "Missing token.json"
 - Check if the files exist in the config directory
@@ -504,8 +533,8 @@ If the user runs into problems at any point, here are common fixes:
 ### "Token has been expired or revoked"
 - Delete the token file and re-authorize:
 ```
-rm config/default/token.json
-npm run auth -- --config-dir config/default
+rm config/CONNECTION_NAME/token.json
+npm run auth -- --config-dir config/CONNECTION_NAME
 ```
 
 ### "Error: listen EADDRINUSE :::3848"
