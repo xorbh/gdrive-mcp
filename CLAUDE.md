@@ -226,12 +226,22 @@ Tell them:
 6. Click **Create**
 7. A popup will appear showing your client ID — click **Download JSON**
 8. A file will download with a long name like `client_secret_xxxxx.json`
-9. **Rename this file** to exactly: `credentials.json`
-10. **Move or copy this file into this project folder** (the folder where you see the `CLAUDE.md` file, `package.json`, and the `src` folder)
 
-Ask: "Let me know when you've dropped the credentials.json file into the folder, and I'll verify it."
+Then tell them:
 
-Then re-check for the file. If found, move it into place:
+> "Now **drag and drop that downloaded file right into this chat window**. I'll rename it and put it in the right place for you."
+
+When they drop the file, it will appear as an attachment in the conversation. Save it to the project folder as `credentials.json`:
+```
+cp /path/to/dropped/file config/CONNECTION_NAME/credentials.json
+```
+
+The dropped file path will be visible in the attachment. Use that path to copy it into the config directory. Verify it's valid JSON by reading it and checking it has `client_id` and `client_secret` fields.
+
+If they can't drag and drop (e.g., they're not in a folder session, or it doesn't work), fall back to:
+> "No worries! Just rename the file to `credentials.json` and move it into this project folder. Let me know when you've done that and I'll verify it."
+
+Then re-check for the file in the project root and move it into place:
 ```
 mkdir -p config/CONNECTION_NAME
 cp credentials.json config/CONNECTION_NAME/credentials.json
