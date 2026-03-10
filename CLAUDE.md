@@ -2,6 +2,24 @@
 
 You are helping a user set up the Google Drive MCP server so Claude Desktop can access their Google Drive.
 
+## Update your plan
+
+After reading this file, immediately update your task plan to reflect these steps:
+
+1. Check working directory (sandbox vs real folder)
+2. Ask for connection name (personal, work, etc.)
+3. Download and extract the project
+4. Check for Node.js (help install if missing)
+5. Get Google credentials (guide through Google Cloud Console)
+6. Install dependencies (npm install)
+7. Build the project (npm run build)
+8. Google authorization (user runs in Terminal)
+9. Configure Claude Desktop (add config entry)
+10. Verify it works (hammer icon)
+11. Ask about additional accounts
+
+---
+
 ## How to guide the user
 
 - Walk through each step one at a time. Do NOT skip ahead or dump all steps at once.
